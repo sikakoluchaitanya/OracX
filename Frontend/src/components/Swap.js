@@ -6,6 +6,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import tokenList from "../tokenList.json";
+import axios from "axios";
 
 function Swap() {
 
@@ -16,6 +17,7 @@ function Swap() {
   const [tokenTwo, setTokenTwo] = useState(tokenList[1])
   const [isOpen, setIsOpen] = useState(false)
   const [changeToken, setChangeToken] = useState(1)
+  const [Prices, setPrices] = useState(null);
 
   function handleSlippageChange(e){
     setSlippage(e.target.value)
@@ -23,9 +25,17 @@ function Swap() {
 
   function changeAmount(e){
     setTokenOneAmount(e.target.value)
+    if(e.target.value && Prices){
+      setTokenTwoAmount((e.target.value * Prices.ratio).toFixed(2))
+    }else{
+      setTokenTwoAmount(null);
+    }
   }
 
   function switchTokens(){
+    setPrices(null);
+    setTokenOneAmount(null)
+    setTokenTwoAmount(null)
     const one = tokenOne;
     const two = tokenTwo;
     setTokenOne(two)
@@ -38,12 +48,28 @@ function Swap() {
   }
 
   function modifyToken(i){
+    setPrices(null)
+    setTokenOneAmount(null)
+    setTokenTwoAmount(null)
     if(changeToken === 1){
       setTokenOne(tokenList[i]);
+      fetchPrices(tokenList[i].address, tokenTwo.address)
     } else {
       setTokenTwo(tokenList[i]);
+      fetchPrices(tokenOne.address, tokenList[i].address)
     }
     setIsOpen(false);
+  }
+
+  useEffect(()=>{
+    fetchPrices(tokenList[0].address, tokenList[1].address)
+  })
+
+  async function fetchPrices(one, two){
+    const res = await axios.get(`https://localhost:3001/tokenPrice`,{
+      params: {addressOne: one, addressTwo: two}
+    })
+    setPrices(res.data)
   }
 
   const setting = (
@@ -102,6 +128,7 @@ function Swap() {
           placeholder="0"
           value={tokenOneAmount}
           onChange={changeAmount}
+          disabled={!Prices}
         />
         <Input
           placeholder="0"
