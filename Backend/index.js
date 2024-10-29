@@ -9,7 +9,26 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/tokenPrice", async (req, res) => {
-  return res.status(200).json(usdPrices);
+  
+  const {query} = req;
+
+  const responseOne = await Moralis.EvmApi.token.getTokenPrice({
+    address: query.addressOne,
+    // chain: query.chain, // cause default chain is set
+  });
+
+  const responseTwo = await Moralis.EvmApi.token.getTokenPrice({
+    address: query.addressTwo,
+    // chain: query.chain, // cause default chain is set
+  });
+
+  const usdPrice = {
+    tokenOne: responseOne.raw.usdPrice,
+    tokenTwo: responseTwo.raw.usdPrice,
+    ratio: responseTwo.raw.usdPrice / responseOne.raw.usdPrice,
+  }
+
+  return res.status(200).json({});
 });
 
 Moralis.start({
