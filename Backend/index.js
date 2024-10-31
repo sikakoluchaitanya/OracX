@@ -25,7 +25,8 @@ app.get("/tokenPrice", async (req, res) => {
   const usdPrice = {
     tokenOne: responseOne.raw.usdPrice,
     tokenTwo: responseTwo.raw.usdPrice,
-    ratio: responseTwo.raw.usdPrice / responseOne.raw.usdPrice,
+    ratio: responseTwo.raw.usdPrice / responseOne.raw.usdPrice,ls
+    
   }
 
   return res.status(200).json({});
